@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Manager</title>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- User Custom Top Bar -->
+        <div class="top-bar">
+            <img width="50" src="Moksh Joshi Hot Pic square.jpg" alt="">
+            <div id="date-display"></div>
+        </div>
+
+        <!-- Header / Balance Card -->
+        <header class="balance-card">
+            <div class="balance-info">
+                <h1>Total Balance</h1>
+                <h2 id="balance-amount">₹0.00</h2>
+            </div>
+            <div class="summary-row">
+                <div class="summary-item income">
+                    <div class="icon-box"><i class="fas fa-arrow-down"></i></div>
+                    <div>
+                        <span>Income</span>
+                        <p id="income-amount">₹0.00</p>
+                    </div>
+                </div>
+                <div class="summary-item expense">
+                    <div class="icon-box"><i class="fas fa-arrow-up"></i></div>
+                    <div>
+                        <span>Expenses</span>
+                        <p id="expense-amount">₹0.00</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Chart Section (Expense Distribution) -->
+        <section class="chart-section">
+            <div class="chart-container">
+                <canvas id="expense-chart"></canvas>
+                <div class="chart-center-text">
+                    <span id="chart-percent">0%</span>
+                    <small>Spent</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Comparison Chart Section -->
+        <section class="chart-section comparison-section">
+            <div style="width: 100%;">
+                <h3 style="margin-bottom: 10px; font-size: 1rem; color: var(--text-muted); text-align: center;">Last 3
+                    Months</h3>
+                <div class="comparison-container" style="width: 100%; height: 200px;">
+                    <canvas id="comparison-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transactions List -->
+        <section class="transactions-section">
+            <div class="section-header">
+                <h3>Transactions</h3>
+                <!-- Fixed: See All Link instead of Reset Button -->
+                <a href="transactions.html" class="see-all-link">See All</a>
+            </div>
+            <ul id="transaction-list" class="transaction-list">
+                <!-- Items will be injected here -->
+            </ul>
+        </section>
+
+        <!-- Empty State (Hidden by default) -->
+        <div id="empty-state" class="empty-state">
+            <i class="fas fa-wallet"></i>
+            <p>No transactions yet</p>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button id="add-btn" class="fab">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- Edit/Delete Action Sheet -->
+    <div id="action-modal" class="modal">
+        <div class="modal-content action-sheet">
+            <h3>Options</h3>
+            <button id="action-edit" class="action-btn"><i class="fas fa-edit"></i> Edit</button>
+            <button id="action-delete" class="action-btn delete"><i class="fas fa-trash"></i> Delete</button>
+            <button id="action-cancel" class="action-btn cancel">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Modal (Add/Edit) -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Transaction</h3>
+                <button id="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+
+            <form id="transaction-form">
+                <!-- Toggle Type -->
+                <div class="type-toggle">
+                    <input type="radio" name="type" id="type-expense" value="expense" checked>
+                    <label for="type-expense">Expense</label>
+
+                    <input type="radio" name="type" id="type-income" value="income">
+                    <label for="type-income">Income</label>
+                </div>
+
+                <div class="input-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="amount" placeholder="0.00" required step="0.01">
+                </div>
+
+                <!-- Custom Date Input -->
+                <div class="input-group">
+                    <label>Date</label>
+                    <input type="date" id="date" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Category</label>
+                    <div class="category-grid" id="category-grid">
+                        <!-- Categories injected via JS -->
+                    </div>
+                    <input type="hidden" id="selected-category" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Note (Optional)</label>
+                    <input type="text" id="note" placeholder="e.g. Dinner with friends">
+                </div>
+
+                <button type="submit" class="submit-btn">Add Transaction</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

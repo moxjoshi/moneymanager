@@ -1,29 +1,4 @@
-const balanceEl = document.getElementById('balance-amount');
-const incomeEl = document.getElementById('income-amount');
-const expenseEl = document.getElementById('expense-amount');
-const list = document.getElementById('transaction-list'); 
-const allList = document.getElementById('all-transactions-list');
-const form = document.getElementById('transaction-form');
-const modal = document.getElementById('modal');
-const actionModal = document.getElementById('action-modal');
-const addBtn = document.getElementById('add-btn');
-const closeBtn = document.getElementById('close-modal');
-const emptyState = document.getElementById('empty-state');
-const categoryGrid = document.getElementById('category-grid');
-const typeInputs = document.querySelectorAll('input[name="type"]');
-const selectedCategoryInput = document.getElementById('selected-category');
-const actionEditBtn = document.getElementById('action-edit');
-const actionDeleteBtn = document.getElementById('action-delete');
-const actionCancelBtn = document.getElementById('action-cancel');
-
-let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-let currentType = 'expense';
-let selectedCategory = null;
-let editId = null;
-let contextId = null;
-let expenseChart = null;
-let comparisonChart = null;
-
+// --- CONFIG ---
 const categories = {
     expense: [
         { id: 'food', name: 'Food', icon: 'fa-utensils' },
@@ -45,24 +20,143 @@ const categories = {
     ]
 };
 
+// --- DOM ELEMENTS (Shared) ---
+const list = document.getElementById('transaction-list');
+const allList = document.getElementById('all-transactions-list');
+const form = document.getElementById('transaction-form');
+const balanceEl = document.getElementById('balance-amount');
+
+// --- INIT ---
 function init() {
+    loadProfile(); // Load user profile data on all pages
+
+    // Shared: Date Time
     const dateDisplay = document.getElementById("date-display");
     if (dateDisplay) {
         setInterval(updateDateTime, 1000);
         updateDateTime();
     }
 
+    // Determine Page Logic
+    if (document.getElementById('profile-form')) {
+        initProfile();
+    }
+
     if (list) {
         initHome();
-    } else if (allList) {
+    }
+
+    if (allList) {
         initAllTransactions();
     }
 
+    // Form Listener (Shared for Add & Edit)
     if (form) {
         form.removeEventListener('submit', handleFormSubmit);
         form.addEventListener('submit', handleFormSubmit);
     }
 }
+
+// --- PROFILE LOGIC ---
+const user = JSON.parse(localStorage.getItem('user_profile')) || {};
+
+function loadProfile() {
+    // Update Top Bar Images across all pages
+    const topImgs = document.querySelectorAll('.top-bar img');
+    if (user.image && topImgs.length > 0) {
+        topImgs.forEach(img => img.src = user.image);
+    }
+}
+
+function initProfile() {
+    const pForm = document.getElementById('profile-form');
+    const pName = document.getElementById('user-name');
+    const pDob = document.getElementById('user-dob');
+    const pUpload = document.getElementById('profile-upload');
+    const pPreview = document.getElementById('profile-preview');
+
+    // Load Data into Form
+    if (user.name) pName.value = user.name;
+    if (user.dob) pDob.value = user.dob;
+    if (user.gender) {
+        const rad = document.getElementById(`gender-${user.gender}`);
+        if (rad) rad.checked = true;
+    }
+    if (user.image) pPreview.src = user.image;
+
+    // Image Upload Preview in Real-time
+    pUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                pPreview.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Save Profile
+    pForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        let genderVal = null;
+        const checkedGender = document.querySelector('input[name="gender"]:checked');
+        if (checkedGender) genderVal = checkedGender.value;
+
+        const profileData = {
+            name: pName.value,
+            dob: pDob.value,
+            gender: genderVal,
+            image: pPreview.src // This will be the base64 string
+        };
+
+        localStorage.setItem('user_profile', JSON.stringify(profileData));
+
+        // Update local object and UI immediately
+        Object.assign(user, profileData);
+        loadProfile();
+
+        showToast("Profile Updated!");
+    });
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+}
+
+
+// --- HOME PAGE LOGIC ---
+// DOM Elements specific to Home
+const incomeEl = document.getElementById('income-amount');
+const expenseEl = document.getElementById('expense-amount');
+const modal = document.getElementById('modal');
+const actionModal = document.getElementById('action-modal');
+const addBtn = document.getElementById('add-btn');
+const closeBtn = document.getElementById('close-modal');
+const emptyState = document.getElementById('empty-state');
+const categoryGrid = document.getElementById('category-grid');
+const typeInputs = document.querySelectorAll('input[name="type"]');
+const selectedCategoryInput = document.getElementById('selected-category');
+
+// Edit/Delete Action Elements
+const actionEditBtn = document.getElementById('action-edit');
+const actionDeleteBtn = document.getElementById('action-delete');
+const actionCancelBtn = document.getElementById('action-cancel');
+
+// --- DATA ---
+let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let currentType = 'expense';
+let selectedCategory = null;
+let editId = null;
+let contextId = null;
+let expenseChart = null;
+let comparisonChart = null;
 
 function initHome() {
     transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -75,11 +169,13 @@ function initHome() {
     updateComparisonChart();
     checkEmpty();
 
+    // Listeners
     if (addBtn) addBtn.addEventListener('click', () => openModalLogic('add'));
     if (closeBtn) closeBtn.addEventListener('click', closeModalLogic);
 
     renderCategories();
     setupTypeToggles();
+    setupActionModal(); // Ensure action modal listeners are attached
 }
 
 function initAllTransactions() {
@@ -93,12 +189,17 @@ function initAllTransactions() {
         });
     });
 
-    document.getElementById('sort-select').addEventListener('change', filterAndRender);
+    const sortSel = document.getElementById('sort-select');
+    if (sortSel) sortSel.addEventListener('change', filterAndRender);
 
     if (closeBtn) closeBtn.addEventListener('click', closeModalLogic);
     renderCategories();
     setupTypeToggles();
+    setupActionModal();
 }
+
+// --- SHARED FUNCTIONS ---
+
 function addTransactionDOM(transaction, targetList) {
     const isIncome = transaction.type === 'income';
     const sign = isIncome ? '+' : '-';
@@ -130,13 +231,13 @@ function addTransactionDOM(transaction, targetList) {
     `;
 
     addLongPressListener(item, transaction.id);
-
     targetList.appendChild(item);
 }
 
 function filterAndRender() {
     const filterType = document.querySelector('.chip.active').dataset.filter;
     const sortType = document.getElementById('sort-select').value;
+    const allListEl = document.getElementById('all-transactions-list'); // Ensure we get it locally if needed
 
     let filtered = [...transactions];
 
@@ -151,59 +252,59 @@ function filterAndRender() {
         if (sortType === 'amt-low') return a.amount - b.amount;
     });
 
-    allList.innerHTML = '';
-    filtered.forEach(t => addTransactionDOM(t, allList));
+    if (allListEl) {
+        allListEl.innerHTML = '';
+        filtered.forEach(t => addTransactionDOM(t, allListEl));
+    }
 
-    if (filtered.length === 0) {
-        emptyState.style.display = 'block';
-    } else {
-        emptyState.style.display = 'none';
+    // Checking empty specifically for filters page
+    const emptyState = document.getElementById('empty-state');
+    if (emptyState) {
+        emptyState.style.display = filtered.length === 0 ? 'block' : 'none';
     }
 }
 
 function addLongPressListener(element, id) {
     let pressTimer;
-
-    const start = () => {
-        pressTimer = setTimeout(() => {
-            showActionModal(id);
-        }, 800);
-    };
-
-    const cancel = () => {
-        clearTimeout(pressTimer);
-    };
+    const start = () => { pressTimer = setTimeout(() => showActionModal(id), 800); };
+    const cancel = () => { clearTimeout(pressTimer); };
 
     element.addEventListener('touchstart', start);
     element.addEventListener('touchend', cancel);
     element.addEventListener('touchmove', cancel);
-
     element.addEventListener('mousedown', start);
     element.addEventListener('mouseup', cancel);
     element.addEventListener('mouseleave', cancel);
 }
 
-function showActionModal(id) {
-    contextId = id;
-    actionModal.classList.add('active');
+function setupActionModal() {
+    if (!actionCancelBtn) return;
+    // Remove old listeners to prevent duplicates (simple way is to clone or just assume init runs once per page load)
+    // Since page reloads on save, standard addEventListener is fine.
+
+    actionCancelBtn.onclick = () => actionModal.classList.remove('active');
+
+    actionDeleteBtn.onclick = () => {
+        if (confirm('Delete this transaction?')) {
+            transactions = transactions.filter(t => t.id !== contextId);
+            saveAndRefresh();
+            actionModal.classList.remove('active');
+        }
+    };
+
+    actionEditBtn.onclick = () => {
+        actionModal.classList.remove('active');
+        openModalLogic('edit', contextId);
+    };
 }
 
-actionCancelBtn.addEventListener('click', () => actionModal.classList.remove('active'));
-
-actionDeleteBtn.addEventListener('click', () => {
-    if (confirm('Delete this transaction?')) {
-        transactions = transactions.filter(t => t.id !== contextId);
-        saveAndRefresh();
-        actionModal.classList.remove('active');
-    }
-});
-
-actionEditBtn.addEventListener('click', () => {
-    actionModal.classList.remove('active');
-    openModalLogic('edit', contextId);
-});
+function showActionModal(id) {
+    contextId = id;
+    if (actionModal) actionModal.classList.add('active');
+}
 
 function openModalLogic(mode, id = null) {
+    if (!modal) return;
     modal.classList.add('active');
 
     if (mode === 'edit' && id) {
@@ -221,12 +322,13 @@ function openModalLogic(mode, id = null) {
 
         renderCategories();
         selectCategory(t.category);
-
         document.querySelector('.submit-btn').textContent = "Update Transaction";
     } else {
         editId = null;
-        form.reset();
-        document.getElementById('date').valueAsDate = new Date();
+        if (form) form.reset();
+        const dInput = document.getElementById('date');
+        if (dInput) dInput.valueAsDate = new Date();
+
         document.getElementById('type-expense').checked = true;
         currentType = 'expense';
         renderCategories();
@@ -236,7 +338,7 @@ function openModalLogic(mode, id = null) {
 }
 
 function closeModalLogic() {
-    modal.classList.remove('active');
+    if (modal) modal.classList.remove('active');
 }
 
 function handleFormSubmit(e) {
@@ -281,6 +383,7 @@ function saveAndRefresh() {
     window.location.reload();
 }
 
+// --- HELPERS ---
 function updateDateTime() {
     const now = new Date();
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -298,15 +401,12 @@ function renderCategories() {
     currentCats.forEach((cat, index) => {
         const div = document.createElement('div');
         div.classList.add('cat-item');
-
         if (index === 0 && !selectedCategory && !editId) {
             div.classList.add('selected');
             selectedCategory = cat.id;
             selectedCategoryInput.value = cat.id;
         }
-
         div.innerHTML = `<div class="cat-icon"><i class="fas ${cat.icon}"></i></div><span>${cat.name}</span>`;
-
         div.addEventListener('click', () => selectCategory(cat.id));
         categoryGrid.appendChild(div);
     });
@@ -333,6 +433,7 @@ function setupTypeToggles() {
     });
 }
 
+// --- CHARTS (Home Only) ---
 function updateValues() {
     if (!balanceEl) return;
     const amounts = transactions.map(t => t.type === 'income' ? t.amount : -t.amount);
@@ -341,16 +442,20 @@ function updateValues() {
     const expense = (transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0) * -1).toFixed(2);
 
     balanceEl.innerText = `₹${total}`;
-    incomeEl.innerText = `₹${income}`;
-    expenseEl.innerText = `₹${Math.abs(expense)}`;
+    if (incomeEl) incomeEl.innerText = `₹${income}`;
+    if (expenseEl) expenseEl.innerText = `₹${Math.abs(expense)}`;
 
     const totalSpent = Math.abs(parseFloat(expense));
     const totalIncome = parseFloat(income);
-    if (totalIncome > 0) {
-        const percent = ((totalSpent / totalIncome) * 100).toFixed(0);
-        document.getElementById('chart-percent').innerText = `${percent}%`;
-    } else {
-        document.getElementById('chart-percent').innerText = totalSpent > 0 ? '100%' : '0%';
+    const pctEl = document.getElementById('chart-percent');
+
+    if (pctEl) {
+        if (totalIncome > 0) {
+            const percent = ((totalSpent / totalIncome) * 100).toFixed(0);
+            pctEl.innerText = `${percent}%`;
+        } else {
+            pctEl.innerText = totalSpent > 0 ? '100%' : '0%';
+        }
     }
 }
 
@@ -370,6 +475,7 @@ function updateChart() {
 
     if (expenseChart) expenseChart.destroy();
 
+    // Empty state logic handled by data check?
     if (Object.keys(categoryTotals).length === 0) {
         expenseChart = new Chart(ctx.getContext('2d'), {
             type: 'doughnut', data: { datasets: [{ data: [1], backgroundColor: ['#222'], borderWidth: 0 }] }, options: { cutout: '80%', plugins: { legend: false, tooltip: false } }
@@ -421,10 +527,11 @@ function updateComparisonChart() {
 }
 
 function checkEmpty() {
-    if (emptyState) {
-        emptyState.style.display = transactions.length === 0 ? 'block' : 'none';
+    const es = document.getElementById('empty-state');
+    if (es) {
+        es.style.display = transactions.length === 0 ? 'block' : 'none';
     }
 }
 
+// Start
 init();
-

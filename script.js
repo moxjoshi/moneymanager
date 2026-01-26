@@ -1,10 +1,8 @@
-// --- SHARED DOM ELEMENTS ---
-// (Some might be null depending on the page)
 const balanceEl = document.getElementById('balance-amount');
 const incomeEl = document.getElementById('income-amount');
 const expenseEl = document.getElementById('expense-amount');
-const list = document.getElementById('transaction-list'); // Home List
-const allList = document.getElementById('all-transactions-list'); // All List
+const list = document.getElementById('transaction-list'); 
+const allList = document.getElementById('all-transactions-list');
 const form = document.getElementById('transaction-form');
 const modal = document.getElementById('modal');
 const actionModal = document.getElementById('action-modal');
@@ -14,22 +12,18 @@ const emptyState = document.getElementById('empty-state');
 const categoryGrid = document.getElementById('category-grid');
 const typeInputs = document.querySelectorAll('input[name="type"]');
 const selectedCategoryInput = document.getElementById('selected-category');
-
-// Edit/Delete Action Elements
 const actionEditBtn = document.getElementById('action-edit');
 const actionDeleteBtn = document.getElementById('action-delete');
 const actionCancelBtn = document.getElementById('action-cancel');
 
-// --- DATA ---
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 let currentType = 'expense';
 let selectedCategory = null;
-let editId = null; // ID of transaction being edited
-let contextId = null; // ID of transaction selected via long press
+let editId = null;
+let contextId = null;
 let expenseChart = null;
 let comparisonChart = null;
 
-// --- CONFIG ---
 const categories = {
     expense: [
         { id: 'food', name: 'Food', icon: 'fa-utensils' },
@@ -51,36 +45,28 @@ const categories = {
     ]
 };
 
-// --- INIT ---
 function init() {
-    // Shared: Date Time
     const dateDisplay = document.getElementById("date-display");
     if (dateDisplay) {
         setInterval(updateDateTime, 1000);
         updateDateTime();
     }
 
-    // Determine Page
     if (list) {
-        // HOME PAGE
         initHome();
     } else if (allList) {
-        // ALL TRANSACTIONS PAGE
         initAllTransactions();
     }
 
-    // Form Listener (Shared for Add & Edit)
     if (form) {
-        form.removeEventListener('submit', handleFormSubmit); // Prevent duplicate
+        form.removeEventListener('submit', handleFormSubmit);
         form.addEventListener('submit', handleFormSubmit);
     }
 }
 
-// --- HOME PAGE LOGIC ---
 function initHome() {
     transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    // Render only top 3
     list.innerHTML = '';
     transactions.slice(0, 3).forEach(t => addTransactionDOM(t, list));
 
@@ -89,7 +75,6 @@ function initHome() {
     updateComparisonChart();
     checkEmpty();
 
-    // Modal & FAB logic
     if (addBtn) addBtn.addEventListener('click', () => openModalLogic('add'));
     if (closeBtn) closeBtn.addEventListener('click', closeModalLogic);
 
@@ -97,33 +82,23 @@ function initHome() {
     setupTypeToggles();
 }
 
-// --- ALL TRANSACTIONS PAGE LOGIC ---
 function initAllTransactions() {
-    // Initial Render (All, Default Sort)
     filterAndRender();
 
-    // Event Listeners for Filter Chips
     document.querySelectorAll('.chip').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            // Toggle active class
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             e.target.classList.add('active');
             filterAndRender();
         });
     });
 
-    // Sort Select
     document.getElementById('sort-select').addEventListener('change', filterAndRender);
 
-    // Close Modal Logic (for Edit)
     if (closeBtn) closeBtn.addEventListener('click', closeModalLogic);
     renderCategories();
     setupTypeToggles();
 }
-
-// --- CORE FUNCTIONS ---
-
-// 1. Render List Item
 function addTransactionDOM(transaction, targetList) {
     const isIncome = transaction.type === 'income';
     const sign = isIncome ? '+' : '-';
@@ -134,7 +109,7 @@ function addTransactionDOM(transaction, targetList) {
 
     item.classList.add('transaction-item');
     item.classList.add(isIncome ? 'income-item' : 'expense-item');
-    item.dataset.id = transaction.id; // Store ID for click actions
+    item.dataset.id = transaction.id;
 
     const dateObj = new Date(transaction.date);
     const dateStr = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
@@ -154,25 +129,21 @@ function addTransactionDOM(transaction, targetList) {
         </div>
     `;
 
-    // ADD LONG PRESS LOGIC
     addLongPressListener(item, transaction.id);
 
     targetList.appendChild(item);
 }
 
-// 2. Filter & Render (Transactions Page)
 function filterAndRender() {
-    const filterType = document.querySelector('.chip.active').dataset.filter; // all, income, expense
+    const filterType = document.querySelector('.chip.active').dataset.filter;
     const sortType = document.getElementById('sort-select').value;
 
     let filtered = [...transactions];
 
-    // Filter
     if (filterType !== 'all') {
         filtered = filtered.filter(t => t.type === filterType);
     }
 
-    // Sort
     filtered.sort((a, b) => {
         if (sortType === 'date-new') return new Date(b.date) - new Date(a.date);
         if (sortType === 'date-old') return new Date(a.date) - new Date(b.date);
@@ -190,32 +161,28 @@ function filterAndRender() {
     }
 }
 
-// 3. Long Press Logic
 function addLongPressListener(element, id) {
     let pressTimer;
 
     const start = () => {
         pressTimer = setTimeout(() => {
             showActionModal(id);
-        }, 800); // 800ms for long press
+        }, 800);
     };
 
     const cancel = () => {
         clearTimeout(pressTimer);
     };
 
-    // Touch
     element.addEventListener('touchstart', start);
     element.addEventListener('touchend', cancel);
     element.addEventListener('touchmove', cancel);
 
-    // Mouse (for desktop testing)
     element.addEventListener('mousedown', start);
     element.addEventListener('mouseup', cancel);
     element.addEventListener('mouseleave', cancel);
 }
 
-// 4. Action Modal Logic
 function showActionModal(id) {
     contextId = id;
     actionModal.classList.add('active');
@@ -236,7 +203,6 @@ actionEditBtn.addEventListener('click', () => {
     openModalLogic('edit', contextId);
 });
 
-// 5. Shared Modal & Form Logic
 function openModalLogic(mode, id = null) {
     modal.classList.add('active');
 
@@ -245,30 +211,26 @@ function openModalLogic(mode, id = null) {
         const t = transactions.find(x => x.id === id);
         if (!t) return;
 
-        // Fill Data
         document.getElementById('amount').value = t.amount;
         document.getElementById('note').value = t.note || '';
-        document.getElementById('date').value = t.date.split('T')[0]; // Format for input type=date
+        document.getElementById('date').value = t.date.split('T')[0];
 
-        // Type
         if (t.type === 'expense') document.getElementById('type-expense').checked = true;
         else document.getElementById('type-income').checked = true;
         currentType = t.type;
 
-        // Category
-        renderCategories(); // Re-render for correct type
+        renderCategories();
         selectCategory(t.category);
 
         document.querySelector('.submit-btn').textContent = "Update Transaction";
     } else {
-        // ADD Mode
         editId = null;
         form.reset();
         document.getElementById('date').valueAsDate = new Date();
         document.getElementById('type-expense').checked = true;
         currentType = 'expense';
         renderCategories();
-        selectCategory(null); // Clear selection
+        selectCategory(null);
         document.querySelector('.submit-btn').textContent = "Add Transaction";
     }
 }
@@ -287,7 +249,6 @@ function handleFormSubmit(e) {
     const finalDate = dateVal ? new Date(dateVal) : new Date();
 
     if (editId) {
-        // Update Existing
         const index = transactions.findIndex(t => t.id === editId);
         if (index !== -1) {
             transactions[index] = {
@@ -300,7 +261,6 @@ function handleFormSubmit(e) {
             };
         }
     } else {
-        // Add New
         const transaction = {
             id: Math.floor(Math.random() * 1000000),
             type: currentType,
@@ -318,10 +278,9 @@ function handleFormSubmit(e) {
 
 function saveAndRefresh() {
     localStorage.setItem('transactions', JSON.stringify(transactions));
-    window.location.reload(); // Simplest way to refresh charts and everything accurately
+    window.location.reload();
 }
 
-// --- HELPER FUNCTIONS ---
 function updateDateTime() {
     const now = new Date();
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -340,7 +299,6 @@ function renderCategories() {
         const div = document.createElement('div');
         div.classList.add('cat-item');
 
-        // Auto-select first in Add Mode
         if (index === 0 && !selectedCategory && !editId) {
             div.classList.add('selected');
             selectedCategory = cat.id;
@@ -358,9 +316,6 @@ function selectCategory(id) {
     selectedCategory = id;
     selectedCategoryInput.value = id;
     document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('selected'));
-    // Find visual element to select... simple logic:
-    // In a real app we'd map via dataset, but re-render is fast enough
-    // Let's just update styles if we can
     const currentCats = categories[currentType];
     const idx = currentCats.findIndex(c => c.id === id);
     if (idx !== -1 && categoryGrid.children[idx]) {
@@ -378,7 +333,6 @@ function setupTypeToggles() {
     });
 }
 
-// --- CHARTS (Only for Home) ---
 function updateValues() {
     if (!balanceEl) return;
     const amounts = transactions.map(t => t.type === 'income' ? t.amount : -t.amount);
@@ -390,7 +344,6 @@ function updateValues() {
     incomeEl.innerText = `₹${income}`;
     expenseEl.innerText = `₹${Math.abs(expense)}`;
 
-    // Percent
     const totalSpent = Math.abs(parseFloat(expense));
     const totalIncome = parseFloat(income);
     if (totalIncome > 0) {
@@ -405,7 +358,6 @@ function updateChart() {
     const ctx = document.getElementById('expense-chart');
     if (!ctx) return;
 
-    // Aggregate Expenses
     const expenseTrans = transactions.filter(t => t.type === 'expense');
     const categoryTotals = {};
     expenseTrans.forEach(t => { categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount; });
@@ -418,7 +370,6 @@ function updateChart() {
 
     if (expenseChart) expenseChart.destroy();
 
-    // Empty State Check
     if (Object.keys(categoryTotals).length === 0) {
         expenseChart = new Chart(ctx.getContext('2d'), {
             type: 'doughnut', data: { datasets: [{ data: [1], backgroundColor: ['#222'], borderWidth: 0 }] }, options: { cutout: '80%', plugins: { legend: false, tooltip: false } }
@@ -475,5 +426,5 @@ function checkEmpty() {
     }
 }
 
-// Init
 init();
+

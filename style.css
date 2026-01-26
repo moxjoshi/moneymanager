@@ -44,7 +44,6 @@ body {
     padding-bottom: 80px;
 }
 
-/* --- Actions / See All --- */
 .page-header {
     display: flex;
     align-items: center;
@@ -65,7 +64,6 @@ body {
     justify-content: center;
 }
 
-/* Filters */
 .filters-section {
     display: flex;
     justify-content: space-between;
@@ -117,7 +115,6 @@ body {
     cursor: pointer;
 }
 
-/* Action Sheet (Options Modal) */
 .action-sheet {
     text-align: center;
 }
@@ -157,7 +154,6 @@ body {
     margin-top: 10px;
 }
 
-/* Link Style */
 .see-all-link {
     text-decoration: none;
     color: var(--primary-color);
@@ -165,7 +161,6 @@ body {
     font-weight: 600;
 }
 
-/* --- Header / Balance Card --- */
 .balance-card {
     background: linear-gradient(135deg, rgba(140, 212, 46, 0.2), rgba(255, 255, 255, 0.05));
     border: 1px solid rgba(140, 212, 46, 0.3);
@@ -232,7 +227,6 @@ body {
     font-weight: 600;
 }
 
-/* --- Chart Section --- */
 .chart-section {
     display: flex;
     justify-content: center;
@@ -266,7 +260,6 @@ body {
     font-size: 0.8rem;
 }
 
-/* --- Transactions List --- */
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -300,7 +293,6 @@ body {
     margin-bottom: 10px;
     border: 1px solid transparent;
     transition: transform 0.2s, border-color 0.2s;
-    /* Enable interactions */
     user-select: none;
     cursor: pointer;
 }
@@ -359,7 +351,6 @@ body {
     color: var(--danger-color);
 }
 
-/* --- FAB --- */
 .fab {
     position: fixed;
     bottom: 30px;
@@ -384,7 +375,6 @@ body {
     transform: scale(0.9);
 }
 
-/* --- Empty State --- */
 .empty-state {
     text-align: center;
     color: var(--text-muted);
@@ -398,7 +388,6 @@ body {
     opacity: 0.3;
 }
 
-/* --- Modal --- */
 .modal {
     position: fixed;
     top: 0;
@@ -449,7 +438,6 @@ body {
     cursor: pointer;
 }
 
-/* Form Styles */
 .input-group {
     margin-bottom: 20px;
 }
@@ -501,7 +489,6 @@ body {
     transition: 0.3s;
 }
 
-/* Checked States */
 #type-expense:checked+label {
     background: var(--danger-color);
     color: #fff;
@@ -512,7 +499,6 @@ body {
     color: #000;
 }
 
-/* Category Grid */
 .category-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -557,7 +543,6 @@ body {
     text-align: center;
 }
 
-/* Submit Button */
 .submit-btn {
     width: 100%;
     background: var(--primary-color);
@@ -569,4 +554,5 @@ body {
     font-weight: 600;
     cursor: pointer;
     margin-top: 10px;
+
 }

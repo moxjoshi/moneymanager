@@ -12,11 +12,13 @@
 
 <body>
     <div class="app-container">
+        <!-- Header -->
         <div class="page-header">
             <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
             <h2>All Transactions</h2>
         </div>
 
+        <!-- Filters & Sorting -->
         <section class="filters-section">
             <div class="filter-chips">
                 <button class="chip active" data-filter="all">All</button>
@@ -35,7 +37,9 @@
             </div>
         </section>
 
+        <!-- Full List -->
         <ul id="all-transactions-list" class="transaction-list full-list">
+            <!-- Injected via JS -->
         </ul>
 
         <div id="empty-state" class="empty-state">
@@ -44,6 +48,22 @@
         </div>
     </div>
 
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home"></i>
+        </a>
+        <div class="nav-center">
+            <button id="add-btn" class="nav-add-btn">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        <a href="transactions.html" class="nav-item active">
+            <i class="fas fa-list"></i>
+        </a>
+    </nav>
+
+    <!-- Edit/Delete Action Sheet (Shared Logic) -->
     <div id="action-modal" class="modal">
         <div class="modal-content action-sheet">
             <h3>Options</h3>
@@ -53,6 +73,9 @@
         </div>
     </div>
 
+    <!-- Edit Transaction Modal (Reused for editing on this page too if needed, or redirect home) -->
+    <!-- For simplicity, we can redirect to Home with an edit param, or just include the modal here. 
+         Let's include the modal here to allow editing directly on this page -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -91,6 +114,5 @@
 
     <script src="script.js"></script>
 </body>
-
 
 </html>

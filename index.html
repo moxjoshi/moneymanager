@@ -16,10 +16,13 @@
 
     <div class="app-container">
         <div class="top-bar">
-            <img width="50" src="Moksh Joshi Hot Pic square.jpg" alt="">
+            <a href="profile.html">
+                <img width="50" src="Moksh Joshi Hot Pic square.jpg" alt="Profile">
+            </a>
             <div id="date-display"></div>
         </div>
 
+        <!-- Header / Balance Card -->
         <header class="balance-card">
             <div class="balance-info">
                 <h1>Total Balance</h1>
@@ -76,11 +79,21 @@
             <i class="fas fa-wallet"></i>
             <p>No transactions yet</p>
         </div>
-
-        <button id="add-btn" class="fab">
-            <i class="fas fa-plus"></i>
-        </button>
     </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+        </a>
+        <div class="nav-center">
+            <button id="add-btn" class="nav-add-btn">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        <a href="transactions.html" class="nav-item">
+            <i class="fas fa-list"></i>
+        </a>
+    </nav>
 
     <div id="action-modal" class="modal">
         <div class="modal-content action-sheet">
@@ -138,6 +151,4 @@
     <script src="script.js"></script>
 </body>
 
-
 </html>
-

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="page-header">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+            <h2>My Profile</h2>
+        </div>
+
+        <div class="profile-container">
+            <!-- Image Upload -->
+            <div class="profile-img-wrapper">
+                <img id="profile-preview" src="Moksh Joshi Hot Pic square.jpg" alt="Profile">
+                <label for="profile-upload" class="edit-icon">
+                    <i class="fas fa-camera"></i>
+                </label>
+                <input type="file" id="profile-upload" accept="image/*" hidden>
+            </div>
+
+            <form id="profile-form">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="user-name" placeholder="Enter your name">
+                </div>
+
+                <div class="input-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="user-dob">
+                </div>
+
+                <div class="input-group">
+                    <label>Gender</label>
+                    <div class="type-toggle">
+                        <input type="radio" name="gender" id="gender-male" value="male">
+                        <label for="gender-male">Male</label>
+
+                        <input type="radio" name="gender" id="gender-female" value="female">
+                        <label for="gender-female">Female</label>
+
+                        <input type="radio" name="gender" id="gender-other" value="other">
+                        <label for="gender-other">Other</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Save Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Saved Successfully!</div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
